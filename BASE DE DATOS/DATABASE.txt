@@ -1,0 +1,48 @@
+create database Telcomundo;
+use Telcomundo;
+create table Informe_ventas(
+orden_trabajo int(10)primary key, paquete varchar(40), servicios int(1),
+estrato char, ciudad varchar(40), localidad varchar(40), legalizacion char,
+ fecha date, cod_tarifa varchar(40),id_usuario int(10),pago char,
+ FOREIGN KEY (cod_tarifa) REFERENCES Comisiones(cod_tarifa));
+create table Comisiones(
+ cod_tarifa varchar(40)primary key, ciudad_com varchar(40), comision float(10),
+ paquete_com varchar(40), servicios_com int(1), estrato_com char,pago char);
+ create table Bonos_descuentos (
+ id_bono int(20)primary key,id_usuario int(10), Tipo_bono varchar (50),Tipo_descuento varchar (50),
+ valor float, FOREIGN KEY (id_usuario) REFERENCES Usuario(id_Usuario));
+ create table Rol (
+ id_rol int auto_increment primary key, Rol varchar(40));
+ create table Usuario (
+ id_usuario int(10)primary key, id_rol int(10), nombre varchar(40), apellido varchar(40),
+ tel int(10), contraseña varchar(40), correo varchar(40), direccion varchar(50),
+ FOREIGN KEY (id_rol) REFERENCES Rol(id_rol));
+ create table modulo(
+ id_modulo int auto_increment primary key, nombre varchar(20));
+  create table Banco(
+ id_usuario int(10), banco varchar(20), cuenta int(20)primary key,
+ FOREIGN KEY (id_usuario) REFERENCES Usuario(id_Usuario));
+ create table Permisos (
+ id_permiso int auto_increment primary key, nombre varchar(40), id_modulo int(10),
+ FOREIGN KEY (id_modulo) REFERENCES Modulo(id_modulo));
+ create view Historico as select I.orden_trabajo, I.id_usuario, I.paquete, I.servicios,
+ I.pago, C.cod_tarifa, C.comision
+ from Informe_ventas I
+ inner join Comisiones C
+ on C.cod_tarifa=I.cod_tarifa;
+ create view Liquidacion_ventas as SELECT Usuario.id_usuario, concat(Usuario.nombre," ",Usuario.apellido),
+ Informe_ventas.Orden_trabajo, Informe_ventas.Paquete, Informe_ventas.ciudad, 
+ Comisiones.cod_tarifa, Comisiones.comision
+ from Usuario inner join Informe_ventas on Informe_ventas.Id_usuario=Usuario.id_usuario
+ inner join Comisiones on Comisiones.cod_tarifa=Informe_ventas.cod_tarifa and Informe_ventas.pago='x';
+ create view Liquidacion_bonos as SELECT Usuario.id_usuario, concat(Usuario.nombre," ",Usuario.apellido),
+ Bonos_descuentos.Tipo_bono, Bonos_descuentos.Tipo_descuento, Bonos_descuentos.valor
+ from Usuario inner join Bonos_descuentos on Bonos_descuentos.Id_usuario=Usuario.id_usuario;
+  create view Historico_bonos as select U.id_usuario, concat(U.nombre," ",U.apellido), B.Tipo_bono,
+  B.Tipo_descuento, B.valor 
+ from Usuario U
+ inner join Bonos_descuentos B
+ on U.id_usuario=B.id_usuario;
+ insert into Rol(id_rol,rol )values (1,'lider');
+ insert into Rol(id_rol,rol )values (2,'analista');
+ insert into Rol(id_rol,rol )values (3,'asesor')
